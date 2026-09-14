@@ -1,0 +1,2309 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHATafrica - Hub & 50 Fonctionnalités Avancées</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- Variables CSS & Mode Sombre --- */
+        :root {
+          --bg-body: #eef2f5;
+          --bg-phone: #ffffff;
+          --bg-card: #ffffff;
+          --bg-input: #f4f6f8;
+          --border-color: #e1e8ed;
+          --text-main: #2c3e50;
+          --text-muted: #7f8c8d;
+          --primary-color: #e67e22;
+          --shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        [data-theme="dark"] {
+          --bg-body: #121212;
+          --bg-phone: #1e1e1e;
+          --bg-card: #252525;
+          --bg-input: #2d2d2d;
+          --border-color: #333333;
+          --text-main: #f1f1f1;
+          --text-muted: #a0a0a0;
+          --primary-color: #d35400;
+          --shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+          margin: 0;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+          background-color: var(--bg-body);
+          display: flex;
+          justify-content: center;
+          height: 100vh;
+          overflow: hidden;
+          color: var(--text-main);
+          transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .phone-frame {
+            width: 100%;
+            max-width: 480px;
+            background-color: var(--bg-phone);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+            box-shadow: var(--shadow);
+        }
+
+        .topbar {
+          background: var(--primary-color);
+          color: white;
+          padding: 15px 20px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 18px;
+          font-weight: bold;
+          position: sticky;
+          top: 0;
+          z-index: 10;
+        }
+
+        .topbar a {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255,255,255,0.2);
+            padding: 6px 12px;
+            border-radius: 20px;
+            transition: background 0.2s;
+        }
+        .topbar a:hover { background: rgba(255,255,255,0.3); }
+
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            padding-bottom: 70px;
+        }
+
+        h2 { font-size: 16px; color: var(--primary-color); margin-top: 0; display: flex; align-items: center; gap: 8px; }
+        
+        .hub-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+
+        .hub-btn-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .hub-action-btn {
+            background: var(--bg-input);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .hub-action-btn:hover { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+
+        /* --- Liste interactive des fonctionnalités --- */
+        .feature-category {
+            margin-bottom: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--bg-card);
+        }
+        .feature-category-header {
+            background: var(--bg-input);
+            padding: 12px;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-main);
+        }
+        .feature-list {
+            padding: 10px 15px;
+            font-size: 12px;
+            display: none;
+            color: var(--text-muted);
+            line-height: 1.8;
+            list-style: none;
+        }
+        .feature-list.active { display: block; }
+        .feature-list li {
+            padding: 6px 8px;
+            margin-bottom: 4px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-input);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .feature-list li:hover { background: var(--primary-color); color: white; }
+
+        /* --- Modale dynamique universelle --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(2px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        .modal-content {
+            background: var(--bg-card);
+            color: var(--text-main);
+            padding: 20px;
+            border-radius: 14px;
+            width: 85%;
+            max-width: 340px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border: 1px solid var(--border-color);
+        }
+        .modal-content h3 { margin-top: 0; color: var(--primary-color); font-size: 16px; }
+        .modal-content input, .modal-content select, .modal-content textarea {
+            width: 100%; padding: 8px; margin-bottom: 10px;
+            background: var(--bg-input); border: 1px solid var(--border-color);
+            color: var(--text-main); border-radius: 6px; outline: none; font-size: 13px; box-sizing: border-box;
+        }
+        .modal-buttons { display: flex; justify-content: flex-end; gap: 8px; }
+        .modal-buttons button { padding: 6px 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; }
+        .btn-close { background: #bdc3c7; color: #333; }
+        .btn-validate { background: var(--primary-color); color: white; }
+
+        .navbar {
+          background-color: var(--bg-card);
+          border-top: 1px solid var(--border-color);
+          display: flex;
+          justify-content: space-around;
+          align-items: center;
+          position: absolute;
+          bottom: 0; width: 100%; height: 60px; z-index: 10;
+        }
+        .nav-item {
+          display: flex; flex-direction: column; align-items: center;
+          color: var(--text-muted); cursor: pointer; text-decoration: none;
+          font-size: 11px; flex: 1; border: none; background: none;
+        }
+        .nav-item i { font-size: 18px; margin-bottom: 2px; }
+        .nav-item.active { color: var(--primary-color); font-weight: bold; }
+    </style>
+</head>
+<body data-theme="light">
+
+    <div class="phone-frame">
+        <div class="topbar">
+            <span>🌍 CHATafrica Hub Pro</span>
+            <a href="index.html"><i class="fas fa-arrow-left"></i> Retour Chat</a>
+        </div>
+
+        <div class="content-area">
+            
+            <div class="hub-card">
+                <h2><i class="fas fa-bolt"></i> Actions Rapides Connectées</h2>
+                <div class="hub-btn-grid">
+                    <button class="hub-action-btn" onclick="executerModule(1)"><i class="fas fa-phone-alt" style="color:#27ae60;"></i> Appel VoIP WebRTC</button>
+                    <button class="hub-action-btn" onclick="executerModule(2)"><i class="fas fa-video" style="color:#3498db;"></i> Appel Vidéo PiP</button>
+                    <button class="hub-action-btn" onclick="executerModule(21)"><i class="fas fa-microphone-alt" style="color:#e67e22;"></i> Salon Audio Spaces</button>
+                    <button class="hub-action-btn" onclick="executerModule(32)"><i class="fas fa-shopping-cart" style="color:#9b59b6;"></i> Panier E-commerce</button>
+                </div>
+            </div>
+
+            <div class="hub-card">
+                <h2><i class="fas fa-list-check"></i> Les 50 Modules Actifs (Logiques Individualisées)</h2>
+                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">Chaque ligne exécute un script de traitement et de stockage dédié :</p>
+
+                <!-- A. Messagerie & Multimédia -->
+                <div class="feature-category">
+                    <div class="feature-category-header" onclick="basculerCategorie(this)">
+                        <span>A. Messagerie & Multimédia (1-10)</span><i class="fas fa-chevron-down"></i>
+                    </div>
+                    <ul class="feature-list">
+                        <li onclick="executerModule(1)">1. Appels audio VoIP simulés WebRTC <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(2)">2. Appels vidéo en direct PiP <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(3)">3. Partage de pièces jointes PDF/Word <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(4)">4. Envoi de stickers et GIFs animés <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(5)">5. Messages éphémères (24h) <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(6)">6. Réactions émojis aux messages <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(7)">7. Statut de frappe en direct <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(8)">8. Confirmation de lecture (Coche) <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(9)">9. Transfert vers groupes <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(10)">10. Recherche textuelle instantanée <span><i class="fas fa-play"></i></span></li>
+                    </ul>
+                </div>
+
+                <!-- B. Publications & Fil -->
+                <div class="feature-category">
+                    <div class="feature-category-header" onclick="basculerCategorie(this)">
+                        <span>B. Publications & Fil (11-20)</span><i class="fas fa-chevron-down"></i>
+                    </div>
+                    <ul class="feature-list">
+                        <li onclick="executerModule(11)">11. Sondages interactifs posts <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(12)">12. Publication géolocalisée (Dakar) <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(13)">13. Système hashtags cliquables <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(14)">14. Éditeur de texte riche <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(15)">15. Albums photos en grille <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(16)">16. Publication planifiée <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(17)">17. Signalement de contenus <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(18)">18. Mode Sauvegarde favoris <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(19)">19. Traduction automatique posts <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(20)">20. Masquage temporaire utilisateur <span><i class="fas fa-play"></i></span></li>
+                    </ul>
+                </div>
+
+                <!-- C. Communauté & Groupes -->
+                <div class="feature-category">
+                    <div class="feature-category-header" onclick="basculerCategorie(this)">
+                        <span>C. Communauté & Groupes (21-30)</span><i class="fas fa-chevron-down"></i>
+                    </div>
+                    <ul class="feature-list">
+                        <li onclick="executerModule(21)">21. Salons audio thématiques Spaces <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(22)">22. Événements et meetups groupe <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(23)">23. Fichiers partagés centralisés <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(24)">24. Sondages réservés membres <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(25)">25. Gestion des rôles (Admin/Modo) <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(26)">26. Invitations par lien unique <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(27)">27. Salons vocaux persistants <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(28)">28. Annonces épinglées haut de groupe <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(29)">29. Demandes adhésion filtrées <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(30)">30. Historique des règles groupe <span><i class="fas fa-play"></i></span></li>
+                    </ul>
+                </div>
+
+                <!-- D. Marketplace & E-commerce -->
+                <div class="feature-category">
+                    <div class="feature-category-header" onclick="basculerCategorie(this)">
+                        <span>D. Marketplace & E-commerce (31-40)</span><i class="fas fa-chevron-down"></i>
+                    </div>
+                    <ul class="feature-list">
+                        <li onclick="executerModule(31)">31. Filtres par catégorie articles <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(32)">32. Panier d'achat intégré <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(33)">33. Chat direct vendeur-acheteur <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(34)">34. Avis et notations vérifiés <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(35)">35. Badge Vendeur Pro / Certifié <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(36)">36. Options de livraison flexibles <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(37)">37. Wishlist (Liste de souhaits) <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(38)">38. Boost d'annonces payant <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(39)">39. Comparateur de prix articles <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(40)">40. Historique des transactions <span><i class="fas fa-play"></i></span></li>
+                    </ul>
+                </div>
+
+                <!-- E. Profil, Sécurité & Paramètres -->
+                <div class="feature-category">
+                    <div class="feature-category-header" onclick="basculerCategorie(this)">
+                        <span>E. Profil & Sécurité (41-50)</span><i class="fas fa-chevron-down"></i>
+                    </div>
+                    <ul class="feature-list">
+                        <li onclick="executerModule(41)">41. Authentification 2FA simulée <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(42)">42. Mode hors-ligne intelligent <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(43)">43. Statut visibilité personnalisé <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(44)">44. Gestion utilisateurs bloqués <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(45)">45. Téléchargement données RGPD <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(46)">46. Personnalisation thèmes UI <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(47)">47. Tableau de bord d'activité <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(48)">48. Notifications push modulables <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(49)">49. Mode Économie de données <span><i class="fas fa-play"></i></span></li>
+                        <li onclick="executerModule(50)">50. Centre d'aide interactif <span><i class="fas fa-play"></i></span></li>
+                    </ul>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Modale Universelle d'exécution -->
+        <div id="dynamicModal" class="modal-overlay">
+            <div class="modal-content">
+                <h3 id="modalTitle">Module Actif</h3>
+                <div id="modalBody" style="font-size: 12px; margin-bottom: 12px;"></div>
+                <div class="modal-buttons">
+                    <button class="btn-close" onclick="fermerModal()">Fermer</button>
+                    <button id="modalActionBtn" class="btn-validate" onclick="validerActionModule()">Exécuter</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="navbar">
+            <button class="nav-item" onclick="window.location.href='index.html'"><i class="fas fa-home"></i><span>Accueil</span></button>
+            <button class="nav-item active" onclick="window.location.href='chatafrica.html'"><i class="fas fa-globe-africa"></i><span>Hub Africa</span></button>
+            <button class="nav-item" onclick="basculerThemeGlobal()"><i class="fas fa-adjust"></i><span>Thème</span></button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedTheme = localStorage.getItem('chatexpress_theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+            const savedAccent = localStorage.getItem('chatexpress_accent');
+            if(savedAccent) document.documentElement.style.setProperty('--primary-color', savedAccent);
+        });
+
+        function basculerThemeGlobal() {
+            const currentTheme = document.body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('chatexpress_theme', newTheme);
+        }
+
+        function basculerCategorie(header) {
+            const list = header.nextElementSibling;
+            const icon = header.querySelector('i');
+            if (list.classList.contains('active')) {
+                list.classList.remove('active');
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                document.querySelectorAll('.feature-list').forEach(el => el.classList.remove('active'));
+                document.querySelectorAll('.feature-category-header i').forEach(ic => ic.style.transform = 'rotate(0deg)');
+                list.classList.add('active');
+                icon.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        let moduleActifId = null;
+
+        // Fonction centralisée gérant précisément l'exécution et le rendu de chacune des 50 fonctions
+        function executerModule(id) {
+            moduleActifId = id;
+            const modal = document.getElementById('dynamicModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            const btn = document.getElementById('modalActionBtn');
+
+            modal.style.display = 'flex';
+            btn.style.display = 'inline-block';
+
+            switch(id) {
+                // A. Messagerie & Multimédia (1-10)
+                case 1:
+    title.innerText = "1. Appel Audio VoIP HD";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Sélectionnez le contact et initiez le flux audio chiffré :</div>
+            <select id="voipContact" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="aminata">Aminata Diallo (Dakar)</option>
+                <option value="kouadio">Kouadio Jean (Abidjan)</option>
+                <option value="fatou">Fatou Ndiaye (Kinshasa)</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-signal" style="color: #27ae60; margin-right: 5px;"></i> Qualité réseau : Optimisée (Latence < 45ms)<br>
+                <i class="fas fa-shield-alt" style="color: #2980b9; margin-right: 5px;"></i> Codec : Opus 48kHz sécurisé
+            </div>
+            <div style="display: flex; gap: 5px; margin-top: 5px;">
+                <button type="button" style="flex:1; padding:6px; font-size:11px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:4px; cursor:pointer;"><i class="fas fa-microphone-slash"></i> Mute</button>
+                <button type="button" style="flex:1; padding:6px; font-size:11px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:4px; cursor:pointer;"><i class="fas fa-volume-up"></i> Haut-parleur</button>
+            </div>
+        </div>
+    `;
+    btn.innerText = "Établir la connexion";
+    btn.onclick = () => {
+        const contactChoisi = document.getElementById('voipContact').value;
+        const modalBody = document.getElementById('modalBody');
+        modalBody.innerHTML = `
+            <div style="text-align: center; padding: 15px;">
+                <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                    <i class="fas fa-spinner fa-spin"></i> Appel en cours vers ${contactChoisi}...
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted);">Connexion WebRTC sécurisée établie. En attente de réponse.</div>
+            </div>
+        `;
+        btn.style.display = 'none';
+        setTimeout(() => {
+            fermerModal();
+        }, 3000);
+    };
+    break;
+
+                case 2:
+    title.innerText = "2. Appel Vidéo PiP (Picture-in-Picture)";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Sélectionnez le correspondant pour lancer le flux vidéo avec incrustation flottante :</div>
+            <select id="videoContact" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="aminata">Aminata Diallo (Dakar)</option>
+                <option value="kouadio">Kouadio Jean (Abidjan)</option>
+                <option value="fatou">Fatou Ndiaye (Kinshasa)</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-video" style="color: #3498db; margin-right: 5px;"></i> Caméra frontale : Prête (1080p)<br>
+                <i class="fas fa-expand" style="color: #e67e22; margin-right: 5px;"></i> Mode PiP : Supporté et redimensionnable
+            </div>
+            <div style="display: flex; gap: 5px; margin-top: 5px;">
+                <button type="button" style="flex:1; padding:6px; font-size:11px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:4px; cursor:pointer;"><i class="fas fa-video-slash"></i> Couper cam</button>
+                <button type="button" style="flex:1; padding:6px; font-size:11px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:4px; cursor:pointer;"><i class="fas fa-camera-rotate"></i> Pivoter</button>
+            </div>
+        </div>
+    `;
+    btn.innerText = "Démarrer Vidéo";
+    btn.onclick = () => {
+        const contactChoisi = document.getElementById('videoContact').value;
+        const modalBody = document.getElementById('modalBody');
+        modalBody.innerHTML = `
+            <div style="text-align: center; padding: 15px;">
+                <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                    <i class="fas fa-video fa-fade"></i> Flux vidéo PiP ouvert avec ${contactChoisi}
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted);">Diffusion active en arrière-plan (Picture-in-Picture).</div>
+            </div>
+        `;
+        btn.style.display = 'none';
+        setTimeout(() => {
+            fermerModal();
+        }, 3000);
+    };
+    break;
+
+                case 3:
+    title.innerText = "3. Partage de Pièces Jointes";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Sélectionnez un document sécurisé à joindre :</div>
+            <input type="file" id="fileInput" accept=".pdf,.doc,.docx" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px; box-sizing:border-box;">
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-file-shield" style="color: #27ae60; margin-right: 5px;"></i> Formats autorisés : PDF, DOC, DOCX<br>
+                <i class="fas fa-cloud-upload-alt" style="color: #3498db; margin-right: 5px;"></i> Limite de taille : 25 Mo max
+            </div>
+        </div>
+    `;
+    btn.innerText = "Envoyer le fichier";
+    btn.onclick = () => {
+        const fileInput = document.getElementById('fileInput');
+        const fileName = fileInput.files.length > 0 ? fileInput.files[0].name : "Aucun fichier sélectionné";
+        const modalBody = document.getElementById('modalBody');
+        
+        modalBody.innerHTML = `
+            <div style="text-align: center; padding: 15px;">
+                <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                    <i class="fas fa-check-circle"></i> Fichier transmis avec succès !
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted);">Nom : ${fileName}</div>
+            </div>
+        `;
+        btn.style.display = 'none';
+        setTimeout(() => {
+            fermerModal();
+        }, 3000);
+    };
+    break;
+
+                case 4:
+    title.innerText = "4. Stickers & GIFs Animés";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Choisissez un pack d'autocollants africains authentiques :</div>
+            <select id="stickerPack" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="proverbes">Proverbes Sages & Citations</option>
+                <option value="dakar">Dakar Vibes & Urban Style</option>
+                <option value="kinshasa">Kinshasa Dance & Rumba</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-icons" style="color: #e67e22; margin-right: 5px;"></i> Format : WebP animé haute définition<br>
+                <i class="fas fa-bolt" style="color: #f1c40f; margin-right: 5px;"></i> Chargement instantané sans compression lourde
+            </div>
+        </div>
+    `;
+    btn.innerText = "Envoyer Sticker";
+    btn.onclick = () => {
+        const packSelect = document.getElementById('stickerPack');
+        const packName = packSelect.options[packSelect.selectedIndex].text;
+        const modalBody = document.getElementById('modalBody');
+        
+        modalBody.innerHTML = `
+            <div style="text-align: center; padding: 15px;">
+                <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                    <i class="fas fa-paper-plane"></i> Sticker envoyé avec succès !
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted);">Pack : ${packName}</div>
+            </div>
+        `;
+        btn.style.display = 'none';
+        setTimeout(() => {
+            fermerModal();
+        }, 3000);
+    };
+    break;
+
+                case 5:
+    title.innerText = "5. Messages Éphémères";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Définir la durée d'autodestruction des messages du chat :</div>
+            <select id="ephemTime" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="10s">10 Secondes</option>
+                <option value="1h">1 Heure</option>
+                <option value="24h" selected>24 Heures</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-stopwatch" style="color: #e74c3c; margin-right: 5px;"></i> Sécurité : Les messages vus s'effacent automatiquement<br>
+                <i class="fas fa-user-secret" style="color: #9b59b6; margin-right: 5px;"></i> Confidentialité renforcée et anti-capture
+            </div>
+        </div>
+    `;
+    btn.innerText = "Activer";
+    btn.onclick = () => {
+        const timeSelect = document.getElementById('ephemTime');
+        const selectedTime = timeSelect.options[timeSelect.selectedIndex].text;
+        const modalBody = document.getElementById('modalBody');
+        
+        modalBody.innerHTML = `
+            <div style="text-align: center; padding: 15px;">
+                <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                    <i class="fas fa-lock"></i> Mode éphémère activé !
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted);">Durée programmée : ${selectedTime}</div>
+            </div>
+        `;
+        btn.style.display = 'none';
+        setTimeout(() => {
+            fermerModal();
+        }, 3000);
+    };
+    break;
+
+                case 6:
+    title.innerText = "6. Réactions Émojis Rapides";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Sélectionnez l'émoji de réaction rapide par défaut pour vos messages :</div>
+            <select id="defEmoji" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="feu">🔥 Feu</option>
+                <option value="coeur">❤️ Cœur</option>
+                <option value="pouce">👍 Pouce levé</option>
+                <option value="bravo">👏 Bravo</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-bolt" style="color: #f1c40f; margin-right: 5px;"></i> Raccourci : Double-tap pour réagir instantanément<br>
+                <i class="fas fa-smile" style="color: #e67e22; margin-right: 5px;"></i> Personnalisation disponible pour chaque discussion
+            </div>
+        </div>
+    `;
+    btn.innerText = "Sauvegarder";
+    btn.onclick = () => {
+        const emojiSelect = document.getElementById('defEmoji');
+        const selectedEmoji = emojiSelect.options[emojiSelect.selectedIndex].text;
+        const modalBody = document.getElementById('modalBody');
+        
+        modalBody.innerHTML = `
+            <div style="text-align: center; padding: 15px;">
+                <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                    <i class="fas fa-check-circle"></i> Préférence enregistrée !
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted);">Émoji par défaut : ${selectedEmoji}</div>
+            </div>
+        `;
+        btn.style.display = 'none';
+        setTimeout(() => {
+            fermerModal();
+        }, 3000);
+    };
+    break;
+
+                case 7:
+    title.innerText = "7. Statut de Frappe en Direct";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Gérez la diffusion de votre indicateur d'activité de saisie aux correspondants :</div>
+            <select id="typingStatus" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="active" selected>Activé (Diffuser en temps réel)</option>
+                <option value="disabled">Désactivé (Ne jamais diffuser)</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-keyboard" style="color: #3498db; margin-right: 5px;"></i> Fonction : Affiche les points de frappe animés<br>
+                <i class="fas fa-eye-slash" style="color: #e74c3c; margin-right: 5px;"></i> Confidentialité : Vous ne verrez pas non plus les autres si désactivé
+            </div>
+        </div>
+    `;
+    btn.innerText = "Enregistrer";
+    btn.onclick = () => {
+        const statusSelect = document.getElementById('typingStatus');
+        const selectedStatus = statusSelect.options[statusSelect.selectedIndex].text;
+        const modalBody = document.getElementById('modalBody');
+        
+        modalBody.innerHTML = `
+            <div style="text-align: center; padding: 15px;">
+                <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                    <i class="fas fa-check-circle"></i> Paramètre mis à jour !
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted);">État : ${selectedStatus}</div>
+            </div>
+        `;
+        btn.style.display = 'none';
+        setTimeout(() => {
+            fermerModal();
+        }, 3000);
+    };
+    break;
+
+                case 8:
+    title.innerText = "8. Confirmation de Lecture";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Gérez l'affichage des doubles coches bleues pour vos messages :</div>
+            <select id="readReceipts" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="all" selected>Actif pour tous les chats</option>
+                <option value="none">Désactivé (Masquer les accusés)</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-check-double" style="color: #2980b9; margin-right: 5px;"></i> Fonction : Indique quand vos messages sont lus<br>
+                <i class="fas fa-user-shield" style="color: #27ae60; margin-right: 5px;"></i> Note : Si vous désactivez les confirmations, vous ne pourrez pas non plus voir celles des autres
+            </div>
+        </div>
+    `;
+    btn.innerText = "Enregistrer";
+    btn.onclick = () => {
+        const receiptSelect = document.getElementById('readReceipts');
+        const selectedState = receiptSelect.options[receiptSelect.selectedIndex].text;
+        const modalBody = document.getElementById('modalBody');
+        
+        modalBody.innerHTML = `
+            <div style="text-align: center; padding: 15px;">
+                <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                    <i class="fas fa-check-circle"></i> Paramètre mis à jour !
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted);">État : ${selectedState}</div>
+            </div>
+        `;
+        btn.style.display = 'none';
+        setTimeout(() => {
+            fermerModal();
+        }, 3000);
+    };
+    break;
+
+                case 9:
+    title.innerText = "9. Transfert de Messages";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Sélectionnez le groupe ou la discussion cible :</div>
+            <select id="targetGroup" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="General Africa">🌍 CHATafrica - Salon Général</option>
+                <option value="Tech & Dev">💻 Développeurs & Codeurs Afrique</option>
+                <option value="Marketplace Pro">🛍️ Annonces & Marketplace Pro</option>
+                <option value="Entraide Mobile">📱 Réparation & Matériel Mobile</option>
+                <option value="Annonces Officielles">📢 Canal des Annonces Officielles</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-share" style="color: #27ae60; margin-right: 5px;"></i> Option : Conserver ou masquer l'expéditeur d'origine<br>
+                <i class="fas fa-users-rectangle" style="color: #3498db; margin-right: 5px;"></i> Diffusion instantanée vers le salon choisi
+            </div>
+        </div>
+    `;
+    btn.innerText = "Transférer";
+    btn.onclick = () => {
+        const targetSelect = document.getElementById('targetGroup');
+        const targetName = targetSelect.options[targetSelect.selectedIndex].text;
+        const modalBody = document.getElementById('modalBody');
+        
+        modalBody.innerHTML = `
+            <div style="text-align: center; padding: 15px;">
+                <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                    <i class="fas fa-paper-plane"></i> Message transféré avec succès !
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted);">Cible : ${targetName}</div>
+            </div>
+        `;
+        btn.style.display = 'none';
+        setTimeout(() => {
+            fermerModal();
+        }, 3000);
+    };
+    break;
+
+                case 10:
+    title.innerText = "10. Recherche Instantanée dans l'Historique";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Entrez un mot-clé pour fouiller l'historique local des messages :</div>
+            <input type="text" id="searchKw" placeholder="Rechercher dans les messages..." style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px; box-sizing:border-box;">
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-search" style="color: #e67e22; margin-right: 5px;"></i> Indexation locale chiffrée pour un accès ultra-rapide<br>
+                <i class="fas fa-filter" style="color: #3498db; margin-right: 5px;"></i> Filtres avancés par date et par expéditeur disponibles
+            </div>
+        </div>
+    `;
+    btn.innerText = "Rechercher";
+    btn.onclick = () => {
+        const keyword = document.getElementById('searchKw').value.trim();
+        const searchResult = keyword !== "" ? keyword : "Tous les messages récents";
+        const modalBody = document.getElementById('modalBody');
+        
+        modalBody.innerHTML = `
+            <div style="text-align: center; padding: 15px;">
+                <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                    <i class="fas fa-spinner fa-spin"></i> Recherche en cours...
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted);">Résultats trouvés pour : "${searchResult}"</div>
+            </div>
+        `;
+        btn.style.display = 'none';
+        setTimeout(() => {
+            fermerModal();
+        }, 3000);
+    };
+    break;
+
+
+                // B. Publications & Fil (11-20)
+                case 11:
+    title.innerText = "11. Sondages Interactifs";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Créez un sondage à choix multiples pour la communauté :</div>
+            <input type="text" id="pollQ" placeholder="Ex: Quelle langue locale préférez-vous ?" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px; box-sizing:border-box;">
+            <div style="display: flex; gap: 5px;">
+                <input type="text" placeholder="Option 1" style="flex:1; padding:6px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:4px; font-size:11px;">
+                <input type="text" placeholder="Option 2" style="flex:1; padding:6px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:4px; font-size:11px;">
+            </div>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-poll" style="color: #3498db; margin-right: 5px;"></i> Résultats en temps réel et votes anonymes sécurisés
+            </div>
+        </div>
+    `;
+    btn.innerText = "Créer Sondage";
+    btn.onclick = () => {
+        const pollInput = document.getElementById('pollQ').value.trim();
+        const pollQuestion = pollInput !== "" ? pollInput : "Sondage communautaire";
+        const modalBody = document.getElementById('modalBody');
+        
+        modalBody.innerHTML = `
+            <div style="text-align: center; padding: 15px;">
+                <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                    <i class="fas fa-check-circle"></i> Sondage publié avec succès !
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted);">Sujet : ${pollQuestion}</div>
+            </div>
+        `;
+        btn.style.display = 'none';
+        setTimeout(() => {
+            fermerModal();
+        }, 3000);
+    };
+    break;
+
+case 12:
+    title.innerText = "12. Publication Géolocalisée";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Associez votre position géographique actuelle à la publication :</div>
+            <input type="text" id="geoLoc" value="Dakar, Sénégal (GPS Actif)" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px; box-sizing:border-box;">
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-map-marker-alt" style="color: #e74c3c; margin-right: 5px;"></i> Précision satellite activée via le module GPS<br>
+                <i class="fas fa-shield-alt" style="color: #27ae60; margin-right: 5px;"></i> Partage optionnel et modifiable à tout moment
+            </div>
+        </div>
+    `;
+    btn.innerText = "Épingler la position";
+    btn.onclick = () => {
+        const locationInput = document.getElementById('geoLoc').value.trim();
+        const locationName = locationInput !== "" ? locationInput : "Position actuelle";
+        const modalBody = document.getElementById('modalBody');
+        
+        modalBody.innerHTML = `
+            <div style="text-align: center; padding: 15px;">
+                <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                    <i class="fas fa-location-dot"></i> Position épinglée au post !
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted);">Lieu : ${locationName}</div>
+            </div>
+        `;
+        btn.style.display = 'none';
+        setTimeout(() => {
+            fermerModal();
+        }, 3000);
+    };
+    break;
+
+                case 13:
+    title.innerText = "13. Système de Hashtags Automatique";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Indexe automatiquement les mots précédés de # pour les rendre cliquables dans le fil d'actualité :</div>
+            <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); margin-top: 4px;">Ajouter un hashtag favori à surveiller :</label>
+            <input type="text" id="customHashtag" placeholder="Ex: #TechAfrica, #Innovation..." style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px; box-sizing:border-box;">
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-hashtag" style="color: #3498db; margin-right: 5px;"></i> Statut : <strong>Indexation auto active</strong><br>
+                <i class="fas fa-chart-line" style="color: #27ae60; margin-right: 5px;"></i> Tendances suivies en temps réel dans toute la région
+            </div>
+        </div>
+    `;
+    btn.innerText = "Enregistrer le tag";
+    btn.onclick = () => {
+        const tagInput = document.getElementById('customHashtag').value.trim();
+        const activeTag = tagInput !== "" ? tagInput : "#TousLesHashtags";
+        const modalBody = document.getElementById('modalBody');
+        
+        modalBody.innerHTML = `
+            <div style="text-align: center; padding: 15px;">
+                <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                    <i class="fas fa-check-circle"></i> Suivi des hashtags configuré !
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted);">Tag prioritaire : ${activeTag}</div>
+            </div>
+        `;
+        btn.style.display = 'none';
+        setTimeout(() => {
+            fermerModal();
+        }, 3000);
+    };
+    break;
+
+case 14:
+    title.innerText = "14. Éditeur de Texte Riche Avancé";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Appliquez du style et structurez votre publication en cours :</div>
+            <div style="display: flex; gap: 5px; margin-bottom: 4px; flex-wrap: wrap;">
+                <button type="button" style="padding:4px 8px; font-size:11px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:4px; cursor:pointer;"><i class="fas fa-bold"></i> Gras</button>
+                <button type="button" style="padding:4px 8px; font-size:11px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:4px; cursor:pointer;"><i class="fas fa-italic"></i> Italique</button>
+                <button type="button" style="padding:4px 8px; font-size:11px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:4px; cursor:pointer;"><i class="fas fa-code"></i> Code</button>
+                <button type="button" style="padding:4px 8px; font-size:11px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:4px; cursor:pointer;"><i class="fas fa-list-ul"></i> Liste</button>
+            </div>
+            <textarea id="richText" placeholder="Rédigez votre post formaté ici..." rows="3" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px; box-sizing:border-box;"></textarea>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-pen-nib" style="color: #e67e22; margin-right: 5px;"></i> Aperçu en direct et formatage Markdown pris en charge
+            </div>
+        </div>
+    `;
+    btn.innerText = "Formater et Publier";
+    btn.onclick = () => {
+        const textContent = document.getElementById('richText').value.trim();
+        const previewText = textContent !== "" ? textContent.substring(0, 30) + "..." : "Publication vide";
+        const modalBody = document.getElementById('modalBody');
+        
+        modalBody.innerHTML = `
+            <div style="text-align: center; padding: 15px;">
+                <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                    <i class="fas fa-paper-plane"></i> Publication formatée avec succès !
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted);">Aperçu : "${previewText}"</div>
+            </div>
+        `;
+        btn.style.display = 'none';
+        setTimeout(() => {
+            fermerModal();
+        }, 3000);
+    };
+    break;
+
+                case 15:
+    title.innerText = "15. Albums Photos en Grille";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Organise automatiquement vos images multiples en mosaïque responsive :</div>
+            <select id="gridStyle" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="auto">Mosaïque fluide automatique (2 à 6 photos)</option>
+                <option value="grid2x2">Grille symétrique 2x2</option>
+                <option value="story">Mode Album / Carrousel</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-th" style="color: #3498db; margin-right: 5px;"></i> Compression intelligente WebP sans perte de qualité<br>
+                <i class="fas fa-images" style="color: #27ae60; margin-right: 5px;"></i> Redimensionnement dynamique selon l'écran
+            </div>
+        </div>
+    `;
+    btn.innerText = "Appliquer la grille";
+    btn.onclick = () => {
+        const styleSelect = document.getElementById('gridStyle');
+        const selectedGrid = styleSelect.options[styleSelect.selectedIndex].text;
+        const modalBody = document.getElementById('modalBody');
+        
+        modalBody.innerHTML = `
+            <div style="text-align: center; padding: 15px;">
+                <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                    <i class="fas fa-check-circle"></i> Mise en page grille activée !
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted);">Mode : ${selectedGrid}</div>
+            </div>
+        `;
+        btn.style.display = 'none';
+        setTimeout(() => {
+            fermerModal();
+        }, 3000);
+    };
+    break;
+
+case 16:
+    title.innerText = "16. Publication Planifiée";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Programmez la date et l'heure de publication automatique de votre post :</div>
+            <input type="datetime-local" id="planDate" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px; box-sizing:border-box;">
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-clock" style="color: #e67e22; margin-right: 5px;"></i> Automatisation cloud sécurisée 24h/24<br>
+                <i class="fas fa-calendar-check" style="color: #27ae60; margin-right: 5px;"></i> Notification de rappel envoyée avant la mise en ligne
+            </div>
+        </div>
+    `;
+    btn.innerText = "Planifier";
+    btn.onclick = () => {
+        const dateInput = document.getElementById('planDate').value;
+        const scheduledTime = dateInput !== "" ? dateInput : "Heure non spécifiée";
+        const modalBody = document.getElementById('modalBody');
+        
+        modalBody.innerHTML = `
+            <div style="text-align: center; padding: 15px;">
+                <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                    <i class="fas fa-calendar-alt"></i> Publication planifiée avec succès !
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted);">Prévu pour le : ${scheduledTime}</div>
+            </div>
+        `;
+        btn.style.display = 'none';
+        setTimeout(() => {
+            fermerModal();
+        }, 3000);
+    };
+    break;
+
+                case 17:
+    title.innerText = "17. Signalement de Contenus";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Sélectionnez le motif du signalement pour alerter l'équipe de modération :</div>
+            <select id="reportReason" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="spam">Spam ou arnaque financière</option>
+                <option value="inappropriate">Contenu inapproprié ou offensant</option>
+                <option value="fake">Fausses informations / Désinformation</option>
+            </select>
+            <textarea placeholder="Précisions optionnelles pour les modérateurs..." rows="2" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px; box-sizing:border-box;"></textarea>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-shield-halved" style="color: #e74c3c; margin-right: 5px;"></i> Traitement confidentiel par la modération communautaire
+            </div>
+        </div>
+    `;
+    btn.innerText = "Envoyer le signalement";
+    btn.onclick = () => {
+        const reasonSelect = document.getElementById('reportReason');
+        const selectedReason = reasonSelect.options[reasonSelect.selectedIndex].text;
+        const modalBody = document.getElementById('modalBody');
+        
+        modalBody.innerHTML = `
+            <div style="text-align: center; padding: 15px;">
+                <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                    <i class="fas fa-flag"></i> Signalement transmis avec succès
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted);">Motif : ${selectedReason}</div>
+            </div>
+        `;
+        btn.style.display = 'none';
+        setTimeout(() => {
+            fermerModal();
+        }, 3000);
+    };
+    break;
+
+case 18:
+    title.innerText = "18. Mode Sauvegarde Favoris";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Enregistrez ce post dans votre espace personnel cloud chiffré local :</div>
+            <select id="favCategory" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="general">Favoris Généraux</option>
+                <option value="tech">Tech & Développement</option>
+                <option value="market">Marketplace & Bons Plans</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-bookmark" style="color: #f1c40f; margin-right: 5px;"></i> Statut : Post indexé et ajouté à votre collection
+            </div>
+        </div>
+    `;
+    btn.innerText = "Voir mes favoris";
+    btn.onclick = () => {
+        const catSelect = document.getElementById('favCategory');
+        const selectedCat = catSelect.options[catSelect.selectedIndex].text;
+        const modalBody = document.getElementById('modalBody');
+        
+        modalBody.innerHTML = `
+            <div style="text-align: center; padding: 15px;">
+                <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                    <i class="fas fa-star" style="color: #f1c40f;"></i> Enregistré dans les favoris !
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted);">Collection : ${selectedCat}</div>
+            </div>
+        `;
+        btn.style.display = 'none';
+        setTimeout(() => {
+            fermerModal();
+        }, 3000);
+    };
+    break;
+
+                case 19:
+    title.innerText = "19. Traduction Automatique Intelligente";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Traduisez instantanément ce contenu vers votre langue préférée :</div>
+            <select id="targetLang" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="fr">Français</option>
+                <option value="en">Anglais</option>
+                <option value="sw">Kiswahili</option>
+                <option value="rn">Kirundi</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-language" style="color: #3498db; margin-right: 5px;"></i> Moteur neuronal multilingue optimisé pour l'Afrique<br>
+                <i class="fas fa-bolt" style="color: #f1c40f; margin-right: 5px;"></i> Restitution instantanée sans rechargement de page
+            </div>
+        </div>
+    `;
+    btn.innerText = "Traduire";
+    btn.onclick = () => {
+        const langSelect = document.getElementById('targetLang');
+        const selectedLang = langSelect.options[langSelect.selectedIndex].text;
+        const modalBody = document.getElementById('modalBody');
+        
+        modalBody.innerHTML = `
+            <div style="text-align: center; padding: 15px;">
+                <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                    <i class="fas fa-check-circle"></i> Traduction effectuée avec succès !
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted);">Langue cible : ${selectedLang}</div>
+            </div>
+        `;
+        btn.style.display = 'none';
+        setTimeout(() => {
+            fermerModal();
+        }, 3000);
+    };
+    break;
+
+case 20:
+    title.innerText = "20. Masquage Temporaire d'Auteur";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Sélectionnez l'auteur à masquer de votre fil d'actualité :</div>
+            <select id="targetAuthor" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="user1">👤 Jean-Paul (Tech Africa)</option>
+                <option value="user2">📱 Aminata (Marketplace Pro)</option>
+                <option value="user3">🌍 Marc (Général Hub)</option>
+                <option value="user4">💻 Byaombe (Dev Community)</option>
+            </select>
+            
+            <div style="margin-top: 4px;">Choisissez la durée du masquage :</div>
+            <select id="hideDur" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="24h">24 heures</option>
+                <option value="30d">30 jours</option>
+                <option value="forever">Indéfiniment (Mise en sourdine)</option>
+            </select>
+            
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-eye-slash" style="color: #e74c3c; margin-right: 5px;"></i> Discret : L'utilisateur ne sera pas notifié de ce masquage<br>
+                <i class="fas fa-sliders-h" style="color: #27ae60; margin-right: 5px;"></i> Paramètre modifiable à tout moment dans vos préférences
+            </div>
+        </div>
+    `;
+    btn.innerText = "Appliquer";
+    btn.onclick = () => {
+        const authorSelect = document.getElementById('targetAuthor');
+        const selectedAuthor = authorSelect.options[authorSelect.selectedIndex].text;
+        
+        const durSelect = document.getElementById('hideDur');
+        const selectedDuration = durSelect.options[durSelect.selectedIndex].text;
+        
+        const modalBody = document.getElementById('modalBody');
+        
+        modalBody.innerHTML = `
+            <div style="text-align: center; padding: 15px;">
+                <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                    <i class="fas fa-shield-alt"></i> Préférence de masquage enregistrée !
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">Auteur : ${selectedAuthor}</div>
+                <div style="font-size: 11px; color: var(--text-muted);">Durée : ${selectedDuration}</div>
+            </div>
+        `;
+        btn.style.display = 'none';
+        setTimeout(() => {
+            fermerModal();
+        }, 3000);
+    };
+    break;
+
+
+                // C. Communauté & Groupes (21-30)
+                case 21:
+    title.innerText = "21. Salons Audio Spaces";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Rejoignez la tribune vocale en direct 'Tech & Innovation Afrique' :</div>
+            <select id="audioRole" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="listener">Auditeur (Écoute active avec levée de main)</option>
+                <option value="speaker">Intervenant / Orateur sur le plateau</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-podcast" style="color: #9b59b6; margin-right: 5px;"></i> Statut : Audio HD optimisé bas débit<br>
+                <i class="fas fa-users" style="color: #3498db; margin-right: 5px;"></i> Auditeurs connectés : <strong>42</strong>
+            </div>
+        </div>
+    `;
+    btn.innerText = "Monter à la tribune";
+    btn.onclick = () => {
+        const roleSelect = document.getElementById('audioRole');
+        const selectedRole = roleSelect.options[roleSelect.selectedIndex].text;
+        const modalBody = document.getElementById('modalBody');
+        
+        modalBody.innerHTML = `
+            <div style="text-align: center; padding: 15px;">
+                <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                    <i class="fas fa-headset" style="color: #9b59b6;"></i> Connexion au Space établie !
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted);">Mode : ${selectedRole}</div>
+            </div>
+        `;
+        btn.style.display = 'none';
+        setTimeout(() => {
+            fermerModal();
+        }, 3000);
+    };
+    break;
+
+case 22:
+    title.innerText = "22. Événements & Meetups";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Créez un événement communautaire pour la région :</div>
+            <input type="text" id="meetTitle" placeholder="Titre (ex: Atelier Dev Mobile)" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px; box-sizing:border-box;">
+            <input type="datetime-local" id="meetDate" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px; box-sizing:border-box;">
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-calendar-day" style="color: #e67e22; margin-right: 5px;"></i> Génère un badge RSVP et un rappel automatique dans le calendrier
+            </div>
+        </div>
+    `;
+    btn.innerText = "Publier l'événement";
+    btn.onclick = () => {
+        const titleInput = document.getElementById('meetTitle').value.trim();
+        const eventTitle = titleInput !== "" ? titleInput : "Atelier Communautaire";
+        const modalBody = document.getElementById('modalBody');
+        
+        modalBody.innerHTML = `
+            <div style="text-align: center; padding: 15px;">
+                <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                    <i class="fas fa-calendar-check" style="color: #27ae60;"></i> Événement publié avec succès !
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted);">Titre : ${eventTitle}</div>
+            </div>
+        `;
+        btn.style.display = 'none';
+        setTimeout(() => {
+            fermerModal();
+        }, 3000);
+    };
+    break;
+
+                case 23:
+    title.innerText = "23. Coffre de Fichiers Partagés";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Accédez au stockage commun du groupe (PDFs, codes sources, images partagées) :</div>
+            <select id="fileCategory" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="all">Tous les fichiers récents</option>
+                <option value="docs">Documents & PDF techniques</option>
+                <option value="code">Extraits de code & Scripts</option>
+                <option value="media">Images & Graphiques</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-folder-open" style="color: #f39c12; margin-right: 5px;"></i> Espace utilisé : <strong>1.2 Go / 5 Go</strong><br>
+                <i class="fas fa-shield-alt" style="color: #27ae60; margin-right: 5px;"></i> Synchronisation chiffrée cloud sécurisée
+            </div>
+        </div>
+    `;
+    btn.innerText = "Ouvrir le coffre";
+    btn.onclick = () => {
+        const catSelect = document.getElementById('fileCategory');
+        const selectedCat = catSelect.options[catSelect.selectedIndex].text;
+        const modalBody = document.getElementById('modalBody');
+        
+        modalBody.innerHTML = `
+            <div style="text-align: center; padding: 15px;">
+                <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                    <i class="fas fa-box-open" style="color: #f39c12;"></i> Coffre de fichiers ouvert !
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted);">Filtre : ${selectedCat}</div>
+            </div>
+        `;
+        btn.style.display = 'none';
+        setTimeout(() => {
+            fermerModal();
+        }, 3000);
+    };
+    break;
+
+case 24:
+    title.innerText = "24. Sondages Réservés Membres Vérifiés";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Configurez le niveau d'accès et de restriction pour ce vote communautaire :</div>
+            <select id="pollRestriction" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="verified" selected>Membres vérifiés du groupe uniquement</option>
+                <option value="all">Tous les membres (Public)</option>
+                <option value="admins">Administrateurs et modérateurs seuls</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-user-check" style="color: #3498db; margin-right: 5px;"></i> Option : <strong>Vérification active</strong> anti-fraude par badge
+            </div>
+        </div>
+    `;
+    btn.innerText = "Enregistrer";
+    btn.onclick = () => {
+        const restrictSelect = document.getElementById('pollRestriction');
+        const selectedRestriction = restrictSelect.options[restrictSelect.selectedIndex].text;
+        const modalBody = document.getElementById('modalBody');
+        
+        modalBody.innerHTML = `
+            <div style="text-align: center; padding: 15px;">
+                <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                    <i class="fas fa-check-circle" style="color: #27ae60;"></i> Restrictions du sondage mises à jour !
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted);">Règle : ${selectedRestriction}</div>
+            </div>
+        `;
+        btn.style.display = 'none';
+        setTimeout(() => {
+            fermerModal();
+        }, 3000);
+    };
+    break;
+
+                case 25:
+    title.innerText = "25. Gestion des Rôles";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Attribuez un rôle au membre sélectionné :</div>
+            <select id="memberRole" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="mod">Modérateur de salon</option>
+                <option value="admin">Administrateur technique</option>
+                <option value="member" selected>Membre standard vérifié</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-user-shield" style="color: #27ae60; margin-right: 5px;"></i> Application instantanée des privilèges dans le groupe
+            </div>
+        </div>
+    `;
+    btn.innerText = "Appliquer le rôle";
+    btn.onclick = () => {
+        const roleSelect = document.getElementById('memberRole');
+        const modalBody = document.getElementById('modalBody');
+        
+        if (roleSelect) {
+            const selectedRole = roleSelect.options[roleSelect.selectedIndex].text;
+            modalBody.innerHTML = `
+                <div style="text-align: center; padding: 15px;">
+                    <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                        <i class="fas fa-check-circle" style="color: #27ae60;"></i> Rôle mis à jour avec succès !
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted);">Nouveau privilège : ${selectedRole}</div>
+                </div>
+            `;
+            btn.style.display = 'none';
+            setTimeout(() => {
+                fermerModal();
+            }, 3000);
+        }
+    };
+    break;
+
+                case 26:
+    title.innerText = "26. Lien d'Invitation Unique";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Générez et partagez un lien d'accès direct sécurisé pour ce salon :</div>
+            <div style="display: flex; gap: 5px;">
+                <input type="text" id="inviteLink" readonly value="https://chatafrica.app/invite/grp_9824" style="flex:1; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px; box-sizing:border-box;">
+                <button type="button" id="copyBtn" style="padding:8px 12px; background:var(--primary-color); border:none; color:#fff; border-radius:6px; cursor:pointer; font-size:12px;"><i class="fas fa-copy"></i></button>
+            </div>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-link" style="color: #3498db; margin-right: 5px;"></i> Lien crypté unique avec option d'expiration automatique
+            </div>
+        </div>
+    `;
+    btn.innerText = "Copier le lien";
+    btn.onclick = () => {
+        const linkInput = document.getElementById('inviteLink');
+        const modalBody = document.getElementById('modalBody');
+        
+        if (linkInput) {
+            navigator.clipboard.writeText(linkInput.value);
+            modalBody.innerHTML = `
+                <div style="text-align: center; padding: 15px;">
+                    <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                        <i class="fas fa-check-circle" style="color: #27ae60;"></i> Lien copié dans le presse-papier !
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted);">${linkInput.value}</div>
+                </div>
+            `;
+            btn.style.display = 'none';
+            setTimeout(() => {
+                fermerModal();
+            }, 3000);
+        }
+    };
+    break;
+
+case 27:
+    title.innerText = "27. Salons Vocaux Persistants";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Canal vocal permanent ouvert 24h/24 pour discussions libres entre collaborateurs :</div>
+            <select id="vocalChannel" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="room1">Salon Ouvert Général (24/7)</option>
+                <option value="room2">Salle de Réunion Technique</option>
+                <option value="room3">Cafétéria Virtuelle (Détente)</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-volume-high" style="color: #2ecc71; margin-right: 5px;"></i> Statut : En écoute (Audio haute fidélité optimisé)
+            </div>
+        </div>
+    `;
+    btn.innerText = "Rejoindre le salon";
+    btn.onclick = () => {
+        const channelSelect = document.getElementById('vocalChannel');
+        const modalBody = document.getElementById('modalBody');
+        
+        if (channelSelect) {
+            const selectedChannel = channelSelect.options[channelSelect.selectedIndex].text;
+            modalBody.innerHTML = `
+                <div style="text-align: center; padding: 15px;">
+                    <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                        <i class="fas fa-headset" style="color: #2ecc71;"></i> Connexion au salon vocal réussie !
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted);">Salon : ${selectedChannel}</div>
+                </div>
+            `;
+            btn.style.display = 'none';
+            setTimeout(() => {
+                fermerModal();
+            }, 3000);
+        }
+    };
+    break;
+
+                case 28:
+    title.innerText = "28. Annonces Épinglées";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Rédigez l'annonce prioritaire visible en haut de l'écran du groupe :</div>
+            <textarea id="pinnedNotice" placeholder="Message important pour tous les membres..." rows="3" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px; box-sizing:border-box;"></textarea>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-thumbtack" style="color: #e74c3c; margin-right: 5px;"></i> Fixe l'alerte en haut du fil d'actualité du salon
+            </div>
+        </div>
+    `;
+    btn.innerText = "Épingler l'annonce";
+    btn.onclick = () => {
+        const noticeInput = document.getElementById('pinnedNotice');
+        const modalBody = document.getElementById('modalBody');
+        
+        if (noticeInput) {
+            const noticeText = noticeInput.value.trim() !== "" ? noticeInput.value.trim() : "Annonce prioritaire du groupe";
+            modalBody.innerHTML = `
+                <div style="text-align: center; padding: 15px;">
+                    <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                        <i class="fas fa-thumbtack" style="color: #e74c3c;"></i> Annonce épinglée avec succès !
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted);">Message affiché en haut du salon.</div>
+                </div>
+            `;
+            btn.style.display = 'none';
+            setTimeout(() => {
+                fermerModal();
+            }, 3000);
+        }
+    };
+    break;
+
+case 29:
+    title.innerText = "29. Demandes d'Adhésion";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Filtrez et examinez les nouveaux candidats par questionnaire d'entrée automatique :</div>
+            <select id="admissionAction" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="review">Examiner les 3 candidats en attente</option>
+                <option value="auto_accept">Activer l'approbation automatique sur critères</option>
+                <option value="config_quiz">Modifier le questionnaire d'entrée</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-user-clock" style="color: #f39c12; margin-right: 5px;"></i> Demandes en attente : <strong>3</strong>
+            </div>
+        </div>
+    `;
+    btn.innerText = "Gérer les demandes";
+    btn.onclick = () => {
+        const actionSelect = document.getElementById('admissionAction');
+        const modalBody = document.getElementById('modalBody');
+        
+        if (actionSelect) {
+            const selectedAction = actionSelect.options[actionSelect.selectedIndex].text;
+            modalBody.innerHTML = `
+                <div style="text-align: center; padding: 15px;">
+                    <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                        <i class="fas fa-users-gear" style="color: #3498db;"></i> Module d'adhésion ouvert !
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted);">Action : ${selectedAction}</div>
+                </div>
+            `;
+            btn.style.display = 'none';
+            setTimeout(() => {
+                fermerModal();
+            }, 3000);
+        }
+    };
+    break;
+
+                case 30:
+    title.innerText = "30. Historique et Modification des Règles";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Consultez ou modifiez la charte de bonne conduite du groupe validée par les administrateurs :</div>
+            <textarea id="groupRules" rows="3" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px; box-sizing:border-box;">1. Respect mutuel et courtoisie obligatoires entre membres.
+2. Interdiction absolue de diffuser des spams ou arnaques financières.
+3. Partage constructif axé sur l'entraide technique et professionnelle.</textarea>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-file-contract" style="color: #27ae60; margin-right: 5px;"></i> Historique des modifications tracé pour les administrateurs
+            </div>
+        </div>
+    `;
+    btn.innerText = "Mettre à jour la charte";
+    btn.onclick = () => {
+        const rulesInput = document.getElementById('groupRules');
+        const modalBody = document.getElementById('modalBody');
+        
+        if (rulesInput) {
+            modalBody.innerHTML = `
+                <div style="text-align: center; padding: 15px;">
+                    <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                        <i class="fas fa-check-circle" style="color: #27ae60;"></i> Charte de conduite mise à jour !
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted);">Les nouvelles règles sont applicables immédiatement.</div>
+                </div>
+            `;
+            btn.style.display = 'none';
+            setTimeout(() => {
+                fermerModal();
+            }, 3000);
+        }
+    };
+    break;
+
+
+                // D. Marketplace & E-commerce (31-40)
+                case 31:
+    title.innerText = "31. Filtres Avancés par Catégorie Marchande";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Filtrez précisément les annonces marchandes et e-commerce par secteur d'activité :</div>
+            <select id="marketCat" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="hightech">High-Tech, Smartphones & Accessoires</option>
+                <option value="craft">Mode, Tissus Locaux & Artisanat</option>
+                <option value="services">Services, Formations & Agences</option>
+                <option value="agri">Agro-alimentaire & Équipements</option>
+            </select>
+            <div style="display: flex; gap: 5px; margin-top: 2px;">
+                <input type="text" id="subFilter" placeholder="Sous-catégorie ou mot-clé..." style="flex:1; padding:6px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:4px; font-size:11px; box-sizing:border-box;">
+            </div>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-filter" style="color: #3498db; margin-right: 5px;"></i> Tri intelligent multicritères avec mise à jour instantanée du catalogue
+            </div>
+        </div>
+    `;
+    btn.innerText = "Appliquer le filtre";
+    btn.onclick = () => {
+        const catSelect = document.getElementById('marketCat');
+        const modalBody = document.getElementById('modalBody');
+        
+        if (catSelect) {
+            const selectedCategory = catSelect.options[catSelect.selectedIndex].text;
+            modalBody.innerHTML = `
+                <div style="text-align: center; padding: 15px;">
+                    <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                        <i class="fas fa-check-circle" style="color: #27ae60;"></i> Filtre appliqué avec succès !
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted);">Secteur : ${selectedCategory}</div>
+                </div>
+            `;
+            btn.style.display = 'none';
+            setTimeout(() => {
+                fermerModal();
+            }, 3000);
+        }
+    };
+    break;
+
+case 32:
+    title.innerText = "32. Panier d'Achat Intégré & Paiement";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Votre panier e-commerce en cours pour la transaction :</div>
+            <div style="background: var(--bg-input); padding: 8px; border-radius: 6px; font-size: 11px; color: var(--text-main); display: flex; flex-direction: column; gap: 4px;">
+                <div style="display: flex; justify-content: space-between;"><span>• Modem 4G LTE Pro (x1)</span><strong>18,000 XOF</strong></div>
+                <div style="display: flex; justify-content: space-between;"><span>• Coque de protection renforcée (x1)</span><strong>4,500 XOF</strong></div>
+                <hr style="border:0; border-top:1px solid var(--border-color); margin:4px 0;">
+                <div style="display: flex; justify-content: space-between; font-weight: bold; color: var(--primary-color);"><span>Montant total :</span><span>22,500 XOF</span></div>
+            </div>
+            <select id="paymentMethod" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px; margin-top: 4px;">
+                <option value="momo">Mobile Money (Orange / MTN / Airtel)</option>
+                <option value="card">Carte bancaire sécurisée</option>
+                <option value="cash">Paiement à la livraison / Retrait Hub</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-lock" style="color: #27ae60; margin-right: 5px;"></i> Passerelle de paiement cryptée et garantie anti-fraude
+            </div>
+        </div>
+    `;
+    btn.innerText = "Procéder au paiement";
+    btn.onclick = () => {
+        const paySelect = document.getElementById('paymentMethod');
+        const modalBody = document.getElementById('modalBody');
+        
+        if (paySelect) {
+            const selectedMethod = paySelect.options[paySelect.selectedIndex].text;
+            modalBody.innerHTML = `
+                <div style="text-align: center; padding: 15px;">
+                    <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                        <i class="fas fa-spinner fa-spin" style="color: #f39c12;"></i> Redirection vers ${selectedMethod}...
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted);">Montant : 22,500 XOF - Commande en cours de validation.</div>
+                </div>
+            `;
+            btn.style.display = 'none';
+            setTimeout(() => {
+                fermerModal();
+            }, 3000);
+        }
+    };
+    break;
+
+                case 33:
+    title.innerText = "33. Chat Direct Vendeur Sécurisé";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Ouvrez une discussion instantanée chiffrée de bout en bout avec le commerçant :</div>
+            <div style="background: var(--bg-input); padding: 8px; border-radius: 6px; font-size: 11px; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-store" style="font-size: 16px; color: var(--primary-color);"></i>
+                <div>
+                    <strong>Boutique Officielle Tech & Co</strong><br>
+                    <span style="color: var(--text-muted);">Statut : En ligne (Répond en &lt; 5 min)</span>
+                </div>
+            </div>
+            <textarea id="directMsg" placeholder="Rédigez votre message au vendeur (négociation, question sur l'article)..." rows="2" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px; box-sizing:border-box;"></textarea>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-shield-alt" style="color: #27ae60; margin-right: 5px;"></i> Canal privé protégé par la charte marketplace de CHATafrica
+            </div>
+        </div>
+    `;
+    btn.innerText = "Envoyer et ouvrir le chat";
+    btn.onclick = () => {
+        const msgInput = document.getElementById('directMsg');
+        const modalBody = document.getElementById('modalBody');
+        
+        if (msgInput) {
+            modalBody.innerHTML = `
+                <div style="text-align: center; padding: 15px;">
+                    <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                        <i class="fas fa-comments" style="color: #3498db;"></i> Discussion ouverte avec succès !
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted);">Votre message a été transmis au vendeur. Redirection...</div>
+                </div>
+            `;
+            btn.style.display = 'none';
+            setTimeout(() => {
+                fermerModal();
+            }, 3000);
+        }
+    };
+    break;
+
+case 34:
+    title.innerText = "34. Avis & Notations Marchandes Vérifiés";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Consultez l'historique des évaluations ou partagez votre expérience d'achat :</div>
+            <div style="background: var(--bg-input); padding: 10px; border-radius: 6px; text-align: center;">
+                <div style="font-size: 18px; font-weight: bold; color: #f1c40f; margin-bottom: 2px;">
+                    <i class="fas fa-star"></i> 4.8 / 5
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted);">Basée sur 124 transactions certifiées par le Hub</div>
+            </div>
+            <div style="display: flex; gap: 5px; align-items: center; margin-top: 4px;">
+                <label style="font-size: 11px; color: var(--text-muted); min-width: 70px;">Votre note :</label>
+                <select id="userRating" style="flex:1; padding:6px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:4px; font-size:11px;">
+                    <option value="5">⭐⭐⭐⭐⭐ (5/5 - Excellent)</option>
+                    <option value="4">⭐⭐⭐⭐ (4/5 - Très bien)</option>
+                    <option value="3">⭐⭐⭐ (3/5 - Correct)</option>
+                    <option value="2">⭐⭐ (2/5 - Décevant)</option>
+                    <option value="1">⭐ (1/5 - À éviter)</option>
+                </select>
+            </div>
+            <textarea id="reviewComment" placeholder="Commentaire sur la transaction, la livraison ou l'article..." rows="2" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px; box-sizing:border-box; margin-top: 4px;"></textarea>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-check-circle" style="color: #27ae60; margin-right: 5px;"></i> Seuls les acheteurs ayant validé une commande peuvent noter
+            </div>
+        </div>
+    `;
+    btn.innerText = "Publier mon avis";
+    btn.onclick = () => {
+        const ratingSelect = document.getElementById('userRating');
+        const modalBody = document.getElementById('modalBody');
+        
+        if (ratingSelect) {
+            const selectedRating = ratingSelect.options[ratingSelect.selectedIndex].text;
+            modalBody.innerHTML = `
+                <div style="text-align: center; padding: 15px;">
+                    <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                        <i class="fas fa-award" style="color: #f1c40f;"></i> Merci pour votre évaluation !
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted);">Note enregistrée : ${selectedRating}</div>
+                </div>
+            `;
+            btn.style.display = 'none';
+            setTimeout(() => {
+                fermerModal();
+            }, 3000);
+        }
+    };
+    break;
+
+                case 35:
+    title.innerText = "35. Badge Vendeur Pro & Certification";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Soumettez votre dossier de certification professionnelle pour obtenir le badge officiel :</div>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 11px; color: var(--text-muted);">Type de pièce justificative :</label>
+                <select id="docType" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                    <option value="id">Pièce d'identité officielle (CNI / Passeport)</option>
+                    <option value="reg">Registre de commerce / RCCM</option>
+                    <option value="tax">Numéro d'identification fiscale</option>
+                </select>
+            </div>
+            <input type="text" id="merchantName" placeholder="Nom de l'entreprise ou nom commercial..." style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px; box-sizing:border-box;">
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-certificate" style="color: #f1c40f; margin-right: 5px;"></i> Le badge Pro renforce la confiance des acheteurs sur la marketplace
+            </div>
+        </div>
+    `;
+    btn.innerText = "Soumettre le dossier";
+    btn.onclick = () => {
+        const docSelect = document.getElementById('docType');
+        const modalBody = document.getElementById('modalBody');
+        
+        if (docSelect) {
+            const selectedDoc = docSelect.options[docSelect.selectedIndex].text;
+            modalBody.innerHTML = `
+                <div style="text-align: center; padding: 15px;">
+                    <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                        <i class="fas fa-file-shield" style="color: #27ae60;"></i> Dossier transmis avec succès !
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted);">Justificatif : ${selectedDoc} - En cours d'examen par le Hub.</div>
+                </div>
+            `;
+            btn.style.display = 'none';
+            setTimeout(() => {
+                fermerModal();
+            }, 3000);
+        }
+    };
+    break;
+
+case 36:
+    title.innerText = "36. Options de Livraison & Acheminement";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Choisissez le mode d'acheminement adapté pour votre commande :</div>
+            <select id="delivOpt" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="relay">Point relais local agréé (Gratuit)</option>
+                <option value="express">Livraison express à domicile (Sous 24h)</option>
+                <option value="hand">Retrait en main propre au Hub CHATafrica</option>
+            </select>
+            <input type="text" id="deliveryAddress" placeholder="Adresse de livraison ou quartier..." style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px; box-sizing:border-box; margin-top: 4px;">
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-truck-fast" style="color: #3498db; margin-right: 5px;"></i> Suivi logistique en temps réel intégré pour chaque option
+            </div>
+        </div>
+    `;
+    btn.innerText = "Valider l'option";
+    btn.onclick = () => {
+        const delivSelect = document.getElementById('delivOpt');
+        const modalBody = document.getElementById('modalBody');
+        
+        if (delivSelect) {
+            const selectedOption = delivSelect.options[delivSelect.selectedIndex].text;
+            modalBody.innerHTML = `
+                <div style="text-align: center; padding: 15px;">
+                    <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                        <i class="fas fa-box" style="color: #27ae60;"></i> Option de livraison enregistrée !
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted);">Mode : ${selectedOption}</div>
+                </div>
+            `;
+            btn.style.display = 'none';
+            setTimeout(() => {
+                fermerModal();
+            }, 3000);
+        }
+    };
+    break;
+
+                case 37:
+    title.innerText = "37. Liste de Souhaits (Wishlist)";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Gérez vos articles sauvegardés et suivez les baisses de prix en temps réel :</div>
+            <div style="background: var(--bg-input); padding: 8px; border-radius: 6px; font-size: 11px; color: var(--text-main); display: flex; flex-direction: column; gap: 4px;">
+                <div style="display: flex; justify-content: space-between;"><span>• Écouteurs Bluetooth Pro</span><strong style="color: #27ae60;">-15% (Prix baissé)</strong></div>
+                <div style="display: flex; justify-content: space-between;"><span>• Routeur 4G Solaire</span><span>Prix stable</span></div>
+            </div>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-heart" style="color: #e74c3c; margin-right: 5px;"></i> Articles dans la wishlist : <strong>4 articles</strong><br>
+                <i class="fas fa-bell" style="color: #f1c40f; margin-right: 5px;"></i> Alertes de baisse de prix actives
+            </div>
+        </div>
+    `;
+    btn.innerText = "Voir la Wishlist";
+    btn.onclick = () => {
+        const modalBody = document.getElementById('modalBody');
+        modalBody.innerHTML = `
+            <div style="text-align: center; padding: 15px;">
+                <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                    <i class="fas fa-heart" style="color: #e74c3c;"></i> Accès à votre liste de souhaits !
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted);">Chargement de vos 4 articles sauvegardés...</div>
+            </div>
+        `;
+        btn.style.display = 'none';
+        setTimeout(() => {
+            fermerModal();
+        }, 3000);
+    };
+    break;
+
+case 38:
+    title.innerText = "38. Boost d'Annonces Payant";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Mettez en avant votre produit en tête de liste pour maximiser votre visibilité :</div>
+            <select id="boostDuration" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="7days">Boost 7 jours - 2,000 XOF (Recommandé)</option>
+                <option value="15days">Boost 15 jours - 3,500 XOF (-15%)</option>
+                <option value="30days">Boost 30 jours (Mois complet) - 6,000 XOF</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-bolt" style="color: #f39c12; margin-right: 5px;"></i> Multiplication par 4 de la portée et des contacts acheteurs
+            </div>
+        </div>
+    `;
+    btn.innerText = "Booster l'annonce";
+    btn.onclick = () => {
+        const boostSelect = document.getElementById('boostDuration');
+        const modalBody = document.getElementById('modalBody');
+        
+        if (boostSelect) {
+            const selectedBoost = boostSelect.options[boostSelect.selectedIndex].text;
+            modalBody.innerHTML = `
+                <div style="text-align: center; padding: 15px;">
+                    <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                        <i class="fas fa-rocket" style="color: #f39c12;"></i> Annonce boostée avec succès !
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted);">Formule : ${selectedBoost}</div>
+                </div>
+            `;
+            btn.style.display = 'none';
+            setTimeout(() => {
+                fermerModal();
+            }, 3000);
+        }
+    };
+    break;
+
+                case 39:
+    title.innerText = "39. Comparateur de Prix Automatique";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Comparez instantanément le tarif de cet article avec des offres similaires sur la plateforme :</div>
+            <div style="background: var(--bg-input); padding: 8px; border-radius: 6px; font-size: 11px; color: var(--text-main); display: flex; flex-direction: column; gap: 4px;">
+                <div style="display: flex; justify-content: space-between;"><span>• Offre actuelle (Ce marchand)</span><strong style="color: var(--primary-color);">18,000 XOF</strong></div>
+                <div style="display: flex; justify-content: space-between;"><span>• Boutique Tech Abidjan</span><span>19,500 XOF</span></div>
+                <div style="display: flex; justify-content: space-between;"><span>• Électro Dakar Express</span><strong style="color: #27ae60;">17,200 XOF (-4%)</strong></div>
+            </div>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-chart-line" style="color: #3498db; margin-right: 5px;"></i> Analyse croisée sur 3 marchands vérifiés de la communauté
+            </div>
+        </div>
+    `;
+    btn.innerText = "Lancer la comparaison";
+    btn.onclick = () => {
+        const modalBody = document.getElementById('modalBody');
+        modalBody.innerHTML = `
+            <div style="text-align: center; padding: 15px;">
+                <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                    <i class="fas fa-balance-scale" style="color: #3498db;"></i> Comparaison mise à jour !
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted);">Le meilleur tarif disponible a été identifié avec succès.</div>
+            </div>
+        `;
+        btn.style.display = 'none';
+        setTimeout(() => {
+            fermerModal();
+        }, 3000);
+    };
+    break;
+
+case 40:
+    title.innerText = "40. Historique des Transactions & Reçus";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Consultez et téléchargez le registre complet de vos achats, ventes et reçus numériques :</div>
+            <select id="exportFormat" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="pdf">Rapport complet au format PDF officiel</option>
+                <option value="csv">Tableau analytique des transactions (CSV)</option>
+                <option value="receipts">Reçus unitaires compressés (ZIP)</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-file-invoice-dollar" style="color: #27ae60; margin-right: 5px;"></i> Archivage cloud sécurisé conforme aux normes comptables
+            </div>
+        </div>
+    `;
+    btn.innerText = "Télécharger l'historique";
+    btn.onclick = () => {
+        const formatSelect = document.getElementById('exportFormat');
+        const modalBody = document.getElementById('modalBody');
+        
+        if (formatSelect) {
+            const selectedFormat = formatSelect.options[formatSelect.selectedIndex].text;
+            modalBody.innerHTML = `
+                <div style="text-align: center; padding: 15px;">
+                    <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                        <i class="fas fa-download" style="color: #27ae60;"></i> Téléchargement initié !
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted);">Format : ${selectedFormat}</div>
+                </div>
+            `;
+            btn.style.display = 'none';
+            setTimeout(() => {
+                fermerModal();
+            }, 3000);
+        }
+    };
+    break;
+
+                // E. Profil, Sécurité & Paramètres (41-50)
+                case 41:
+    title.innerText = "41. Double Authentification 2FA";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Configurez la double authentification pour renforcer la sécurité de votre compte :</div>
+            <select id="authMethod" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="app">Application d'authentification (Google Authenticator / Authy)</option>
+                <option value="sms">Code de vérification par SMS sécurisé</option>
+                <option value="email">Confirmation par e-mail chiffré</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-shield-halved" style="color: #27ae60; margin-right: 5px;"></i> État actuel : <strong>Sécurisé</strong> (Protection active)
+            </div>
+        </div>
+    `;
+    btn.innerText = "Configurer 2FA";
+    btn.onclick = () => {
+        const methodSelect = document.getElementById('authMethod');
+        const modalBody = document.getElementById('modalBody');
+        
+        if (methodSelect) {
+            const selectedMethod = methodSelect.options[methodSelect.selectedIndex].text;
+            modalBody.innerHTML = `
+                <div style="text-align: center; padding: 15px;">
+                    <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                        <i class="fas fa-lock" style="color: #27ae60;"></i> Configuration 2FA initialisée !
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted);">Méthode choisie : ${selectedMethod}</div>
+                </div>
+            `;
+            btn.style.display = 'none';
+            setTimeout(() => {
+                fermerModal();
+            }, 3000);
+        }
+    };
+    break;
+
+case 42:
+    title.innerText = "42. Mode Hors-Ligne Intelligent";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Gérez le cache local pour consulter vos messages et flux sans connexion Internet active :</div>
+            <select id="cacheAction" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="sync">Actualiser et synchroniser le cache complet</option>
+                <option value="clear">Vider les données temporaires locales</option>
+                <option value="optimize">Optimiser l'espace de stockage hors-ligne</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-cloud-arrow-down" style="color: #3498db; margin-right: 5px;"></i> Cache local : <strong>Synchronisé</strong> (Prêt pour usage hors-ligne)
+            </div>
+        </div>
+    `;
+    btn.innerText = "Actualiser le cache";
+    btn.onclick = () => {
+        const actionSelect = document.getElementById('cacheAction');
+        const modalBody = document.getElementById('modalBody');
+        
+        if (actionSelect) {
+            const selectedAction = actionSelect.options[actionSelect.selectedIndex].text;
+            modalBody.innerHTML = `
+                <div style="text-align: center; padding: 15px;">
+                    <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                        <i class="fas fa-sync fa-spin" style="color: #3498db;"></i> Opération en cours...
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted);">Action : ${selectedAction}</div>
+                </div>
+            `;
+            btn.style.display = 'none';
+            setTimeout(() => {
+                fermerModal();
+            }, 3000);
+        }
+    };
+    break;
+
+                case 43:
+    title.innerText = "43. Statut de Visibilité en Ligne";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Définissez précisément qui peut voir votre statut en ligne et votre dernière connexion :</div>
+            <select id="visStat" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="all">Tout le monde (Public)</option>
+                <option value="contacts">Mes contacts uniquement</option>
+                <option value="nobody">Personne (Mode Invisible permanent)</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-eye" style="color: #3498db; margin-right: 5px;"></i> Contrôle total de votre confidentialité sur la plateforme
+            </div>
+        </div>
+    `;
+    btn.innerText = "Mettre à jour";
+    btn.onclick = () => {
+        const visSelect = document.getElementById('visStat');
+        const modalBody = document.getElementById('modalBody');
+        
+        if (visSelect) {
+            const selectedVis = visSelect.options[visSelect.selectedIndex].text;
+            modalBody.innerHTML = `
+                <div style="text-align: center; padding: 15px;">
+                    <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                        <i class="fas fa-check-circle" style="color: #27ae60;"></i> Visibilité mise à jour !
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted);">Nouveau paramètre : ${selectedVis}</div>
+                </div>
+            `;
+            btn.style.display = 'none';
+            setTimeout(() => {
+                fermerModal();
+            }, 3000);
+        }
+    };
+    break;
+
+case 44:
+    title.innerText = "44. Gestion des Utilisateurs Bloqués";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Consultez et gérez les comptes restreints ou bloqués pour non-respect de la charte :</div>
+            <select id="blockAction" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="view">Affirmer la liste des comptes restreints</option>
+                <option value="add">Bloquer un nouvel utilisateur par identifiant</option>
+                <option value="unblock">Débloquer un compte existant</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-user-slash" style="color: #e74c3c; margin-right: 5px;"></i> Comptes actuellement bloqués : <strong>0</strong>
+            </div>
+        </div>
+    `;
+    btn.innerText = "Gérer la liste";
+    btn.onclick = () => {
+        const blockSelect = document.getElementById('blockAction');
+        const modalBody = document.getElementById('modalBody');
+        
+        if (blockSelect) {
+            const selectedAction = blockSelect.options[blockSelect.selectedIndex].text;
+            modalBody.innerHTML = `
+                <div style="text-align: center; padding: 15px;">
+                    <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                        <i class="fas fa-shield-alt" style="color: #27ae60;"></i> Module de modération ouvert !
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted);">Action : ${selectedAction}</div>
+                </div>
+            `;
+            btn.style.display = 'none';
+            setTimeout(() => {
+                fermerModal();
+            }, 3000);
+        }
+    };
+    break;
+
+                case 45:
+    title.innerText = "45. Téléchargement des Données RGPD";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Générez une archive complète contenant l'intégralité de vos messages, photos et paramètres au format JSON :</div>
+            <select id="rgpdFormat" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="json">Archive complète structurée (JSON + Médias)</option>
+                <option value="csv">Tableaux récapitulatifs (CSV)</option>
+                <option value="html">Rapport textuel consultable (HTML)</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-file-zipper" style="color: #f39c12; margin-right: 5px;"></i> Conforme aux normes de protection des données personnelles (RGPD)
+            </div>
+        </div>
+    `;
+    btn.innerText = "Télécharger mon archive";
+    btn.onclick = () => {
+        const formatSelect = document.getElementById('rgpdFormat');
+        const modalBody = document.getElementById('modalBody');
+        
+        if (formatSelect) {
+            const selectedFormat = formatSelect.options[formatSelect.selectedIndex].text;
+            modalBody.innerHTML = `
+                <div style="text-align: center; padding: 15px;">
+                    <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                        <i class="fas fa-spinner fa-spin" style="color: #f39c12;"></i> Préparation de l'archive en cours...
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted);">Format sélectionné : ${selectedFormat}. Le lien de téléchargement vous sera envoyé.</div>
+                </div>
+            `;
+            btn.style.display = 'none';
+            setTimeout(() => {
+                fermerModal();
+            }, 3000);
+        }
+    };
+    break;
+
+case 46:
+    title.innerText = "46. Personnalisation des Thèmes UI";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Sélectionnez votre nuance d'accentuation principale pour l'interface du Hub :</div>
+            <select id="accentSelect" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="#e67e22">🟠 Orangé Africain</option>
+                <option value="#3498db">🔵 Bleu Océan</option>
+                <option value="#27ae60">🟢 Vert Savane</option>
+                <option value="#9b59b6">🟣 Pourpre Royal</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-palette" style="color: #9b59b6; margin-right: 5px;"></i> Application instantanée des variables CSS globales de design
+            </div>
+        </div>
+    `;
+    btn.innerText = "Appliquer la couleur";
+    btn.onclick = () => {
+        const accentSelect = document.getElementById('accentSelect');
+        const modalBody = document.getElementById('modalBody');
+        
+        if (accentSelect) {
+            const selectedColorText = accentSelect.options[accentSelect.selectedIndex].text;
+            modalBody.innerHTML = `
+                <div style="text-align: center; padding: 15px;">
+                    <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                        <i class="fas fa-check-circle" style="color: #27ae60;"></i> Thème mis à jour avec succès !
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted);">Nouvelle ambiance : ${selectedColorText}</div>
+                </div>
+            `;
+            btn.style.display = 'none';
+            setTimeout(() => {
+                fermerModal();
+            }, 3000);
+        }
+    };
+    break;
+
+                case 47:
+    title.innerText = "47. Tableau de Bord d'Activité Détaillé";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Statistiques d'utilisation globales de votre compte sur la période :</div>
+            <div style="background: var(--bg-input); padding: 10px; border-radius: 6px; font-size: 11px; color: var(--text-main); display: flex; flex-direction: column; gap: 6px;">
+                <div style="display: flex; justify-content: space-between;"><span>⏱️ Temps passé cette semaine :</span><strong>3h 20min</strong></div>
+                <div style="display: flex; justify-content: space-between;"><span>💬 Messages envoyés :</span><strong>14 messages</strong></div>
+                <div style="display: flex; justify-content: space-between;"><span>📖 Publications lues :</span><strong>5 publications</strong></div>
+            </div>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-chart-pie" style="color: #27ae60; margin-right: 5px;"></i> Données d'activité mesurées en temps réel sur le Hub
+            </div>
+        </div>
+    `;
+    btn.innerText = "Fermer";
+    btn.onclick = () => {
+        fermerModal();
+    };
+    break;
+
+case 48:
+    title.innerText = "48. Paramétrage des Notifications Push";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Paramétrez finement les alertes sonores et bannières pour vos services :</div>
+            <select id="pushMode" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="all">Toutes les notifications (Messages & Actualités)</option>
+                <option value="messages">Messages directs et mentions uniquement</option>
+                <option value="none">Désactiver toutes les notifications temporairement</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-bell" style="color: #f39c12; margin-right: 5px;"></i> État actuel : <strong>Activées</strong> (Canal prioritaire)
+            </div>
+        </div>
+    `;
+    btn.innerText = "Modifier préférences";
+    btn.onclick = () => {
+        const pushSelect = document.getElementById('pushMode');
+        const modalBody = document.getElementById('modalBody');
+        
+        if (pushSelect) {
+            const selectedPush = pushSelect.options[pushSelect.selectedIndex].text;
+            modalBody.innerHTML = `
+                <div style="text-align: center; padding: 15px;">
+                    <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                        <i class="fas fa-check-circle" style="color: #27ae60;"></i> Préférences de notifications mises à jour !
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted);">Mode : ${selectedPush}</div>
+                </div>
+            `;
+            btn.style.display = 'none';
+            setTimeout(() => {
+                fermerModal();
+            }, 3000);
+        }
+    };
+    break;
+
+                case 49:
+    title.innerText = "49. Mode Économie de Données";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Désactivez ou ajustez le chargement automatique des images et des vidéos lourdes pour préserver votre forfait mobile :</div>
+            <select id="dataSaverMode" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="eco">Actif (Compression maximale des médias & flux)</option>
+                <option value="wifi_only">Téléchargement médias uniquement sur Wi-Fi</option>
+                <option value="off">Désactivé (Qualité standard maximale)</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-feather" style="color: #27ae60; margin-right: 5px;"></i> État : <strong>Optimisé</strong> (Économie estimée à 60% de data)
+            </div>
+        </div>
+    `;
+    btn.innerText = "Basculer le mode";
+    btn.onclick = () => {
+        const saverSelect = document.getElementById('dataSaverMode');
+        const modalBody = document.getElementById('modalBody');
+        
+        if (saverSelect) {
+            const selectedSaver = saverSelect.options[saverSelect.selectedIndex].text;
+            modalBody.innerHTML = `
+                <div style="text-align: center; padding: 15px;">
+                    <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                        <i class="fas fa-check-circle" style="color: #27ae60;"></i> Mode d'économie mis à jour !
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted);">Configuration : ${selectedSaver}</div>
+                </div>
+            `;
+            btn.style.display = 'none';
+            setTimeout(() => {
+                fermerModal();
+            }, 3000);
+        }
+    };
+    break;
+
+case 50:
+    title.innerText = "50. Centre d'Aide Interactif & Support";
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>Consultez les tutoriels vidéo, la FAQ technique ou contactez directement l'assistance CHATafrica :</div>
+            <select id="supportTopic" style="width:100%; padding:8px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; font-size:12px;">
+                <option value="faq">Consulter la FAQ technique & Base de connaissances</option>
+                <option value="video">Tutoriels vidéo d'utilisation pas à pas</option>
+                <option value="agent">Ouvrir un ticket direct avec l'assistance technique</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 6px;">
+                <i class="fas fa-headset" style="color: #3498db; margin-right: 5px;"></i> Assistance multilingue disponible 24h/24 pour les membres du Hub
+            </div>
+        </div>
+    `;
+    btn.innerText = "Ouvrir le support";
+    btn.onclick = () => {
+        const supportSelect = document.getElementById('supportTopic');
+        const modalBody = document.getElementById('modalBody');
+        
+        if (supportSelect) {
+            const selectedTopic = supportSelect.options[supportSelect.selectedIndex].text;
+            modalBody.innerHTML = `
+                <div style="text-align: center; padding: 15px;">
+                    <div style="font-size: 14px; font-weight: bold; color: var(--primary-color); margin-bottom: 8px;">
+                        <i class="fas fa-life-ring" style="color: #3498db;"></i> Centre de support ouvert !
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted);">Section : ${selectedTopic}</div>
+                </div>
+            `;
+            btn.style.display = 'none';
+            setTimeout(() => {
+                fermerModal();
+            }, 3000);
+        }
+    };
+    break;
+
+                default:
+                    title.innerText = `Module Avancé #${id}`;
+                    body.innerHTML = `Le sous-système <strong>#${id}</strong> est chargé et opérationnel.`;
+                    btn.innerText = "Confirmer";
+                    break;
+            }
+        }
+
+        function fermerModal() {
+            document.getElementById('dynamicModal').style.display = 'none';
+        }
+
+        // Valide l'action spécifique du module actif en cours
+        function validerActionModule() {
+            if (moduleActifId === 46) {
+                const couleur = document.getElementById('accentSelect').value;
+                document.documentElement.style.setProperty('--primary-color', couleur);
+                localStorage.setItem('chatexpress_accent', couleur);
+                alert("Palette de couleur mise à jour avec succès !");
+            } else if (moduleActifId === 11) {
+                const val = document.getElementById('pollQ') ? document.getElementById('pollQ.value') : 'Sondage';
+                alert("Sondage créé et diffusé avec succès dans le fil d'actualités !");
+            } else if (moduleActifId === 3) {
+                alert("Pièce jointe téléchargée et transmise au canal actif !");
+            } else if (moduleActifId === 32) {
+                alert("Redirection vers la passerelle de paiement sécurisée...");
+            } else {
+                alert(`Action exécutée et enregistrée avec succès pour le module #${moduleActifId} !`);
+            }
+            fermerModal();
+        }
+    </script>
+</body>
+</html>
